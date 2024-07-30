@@ -1,0 +1,28 @@
+version: '3.4'
+
+services:
+  web:
+    container_name: turd-web
+    build:
+      context: ../
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    volumes:
+      - ../src:/src
+    environment:
+      - MONGO_HOST=mongodb
+      - MONGODB_PORT=27017
+    ports:
+      - 8888:8888
+    depends_on:
+      - mongodb
+
+  mongodb:
+    image: mongo:5.0.21-focal
+    container_name: turd-mongodb
+    restart: unless-stopped
+    volumes:
+      - './data:/data/db'
+
+#    ports:
+#      - "27017:27017"
