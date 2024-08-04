@@ -19,3 +19,7 @@ Portfolio rebalancer for T-invest API
 Но так не построишь график VMA.
 
 А в принципе можно и не хранить, можно в памяти держать.
+
+Время в свечах в UTC
+
+VMA - это Volume Adjusted MA, а не weighted

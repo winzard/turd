@@ -6,11 +6,16 @@ from datetime import timedelta
 from tinkoff.invest import CandleInterval, Client
 from tinkoff.invest.schemas import CandleSource
 from tinkoff.invest.utils import now
-from pandas import DataFrame
+import numpy as np
+import pandas as pd
+from numpy_ext import rolling_apply as rolling_apply_ext
 
 load_dotenv()
 
 TOKEN = os.environ["PROD_INVEST_TOKEN"]
+# https://stackoverflow.com/questions/60736556/pandas-rolling-apply-using-multiple-columns
+def masscenter(price, volume):
+    return np.sum(price * volume) / np.sum(volume)
 
 
 def main():
@@ -22,9 +27,10 @@ def main():
             candle_source_type=CandleSource.CANDLE_SOURCE_UNSPECIFIED,
         )
 
-        df = DataFrame([{'time': c.time, 'price': Decimal(f'{c.close.units}.{c.close.nano}'), 'volume': c.volume} for c in candles])
-        df['MA_100'] = df['price'].rolling(window=100).mean()    
-        df['MA_12'] = df['price'].rolling(window=12).mean()    
+        df = pd.DataFrame([{'time': c.time, 'price': Decimal(f'{c.close.units}.{c.close.nano}'), 'volume': c.volume} for c in candles])
+        df['MA_100'] = rolling_apply_ext(masscenter, 100 , df.price.values, df.volume.values)
+        df['MA_12'] = rolling_apply_ext(masscenter, 12 , df.price.values, df.volume.values)
+        
         print(df)
         
 
